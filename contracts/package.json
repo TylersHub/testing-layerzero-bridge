@@ -11,6 +11,8 @@
   "license": "ISC",
   "packageManager": "pnpm@10.15.1",
   "devDependencies": {
+    "@layerzerolabs/devtools-evm": "^3.0.0",
+    "@layerzerolabs/toolbox-hardhat": "^0.6.12",
     "@nomicfoundation/hardhat-ethers": "^4.0.1",
     "@nomicfoundation/hardhat-ignition": "^3.0.3",
     "@types/chai": "^4.3.20",

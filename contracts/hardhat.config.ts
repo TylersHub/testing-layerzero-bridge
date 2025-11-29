@@ -1,4 +1,7 @@
-import type { HardhatUserConfig } from "hardhat/config";
+import "@layerzerolabs/devtools-evm";
+import "@layerzerolabs/toolbox-hardhat";
+import "dotenv/config";
+import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-ethers";
 import * as dotenv from "dotenv";
 dotenv.config();
