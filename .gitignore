@@ -10,6 +10,7 @@ desktop.ini
 # -------------------------
 node_modules/
 pnpm-lock.yaml
+package-lock.json
 
 # pnpm store (global cache symlinks)
 .pnpm-store/
@@ -48,10 +49,16 @@ contracts/cache/
 # Next.js
 web/.next/
 web/out/
+web-app/.next/
+web-app/out/
 
 # Misc
 dist/
 build/
+package/
+lzsrc/
+contracts-lz-scaffold/
+*.tgz
 
 # -------------------------
 # VS Code
