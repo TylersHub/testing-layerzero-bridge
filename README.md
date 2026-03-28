@@ -239,6 +239,86 @@ Helpful links:
 10. Send a small amount, like `1` or `10`, to your own wallet on Arbitrum Sepolia.
 11. Confirm the message on LayerZero Scan.
 
+## Optional Automation With `bridge-workflow.js`
+
+If you do not want to type every Hardhat command manually each time, this repo also includes:
+
+- [bridge-workflow.js](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/scripts/bridge-workflow.js)
+
+This script is not a replacement for the manual instructions above. It is just a convenience layer that runs the same workflow for you in a shorter form.
+
+Run these from the `contracts` directory.
+
+### Full Prepare Flow
+
+This runs:
+
+- compile
+- test
+- deploy on Sepolia
+- deploy on Arbitrum Sepolia
+- wire the contracts
+
+```powershell
+npm run bridge:prepare
+```
+
+### Mint Using The Wallet In `.env`
+
+Mint on Sepolia:
+
+```powershell
+npm run mint:sepolia
+```
+
+Mint on Arbitrum Sepolia:
+
+```powershell
+npm run mint:arbitrum
+```
+
+You can also override the amount or wallet address:
+
+```powershell
+npm run mint:sepolia -- 250
+npm run mint:sepolia -- 250 0xYourAddress
+```
+
+### Send Using The Wallet In `.env`
+
+Send from Sepolia to Arbitrum Sepolia:
+
+```powershell
+npm run send:s2a
+```
+
+Send from Arbitrum Sepolia to Sepolia:
+
+```powershell
+npm run send:a2s
+```
+
+You can also override the amount or wallet address:
+
+```powershell
+npm run send:s2a -- 5
+npm run send:s2a -- 5 0xYourAddress
+```
+
+### Important Note
+
+The automation commands submit real testnet transactions.
+
+That means they will:
+
+- spend testnet gas
+- deploy contracts
+- wire peers
+- mint tokens
+- send bridge transactions
+
+So they are faster and easier than typing every command manually, but they still perform the same on-chain actions.
+
 ## Common Problems
 
 ### I only have Sepolia ETH

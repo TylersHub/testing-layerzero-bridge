@@ -1,57 +1,70 @@
-# Sample Hardhat 3 Beta Project (`mocha` and `ethers`)
+# Contracts Workspace
 
-This project showcases a Hardhat 3 Beta project using `mocha` for tests and the `ethers` library for Ethereum interactions.
+This folder contains the Hardhat workspace for the LayerZero OFT bridge example.
 
-To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+If you are looking for:
 
-## Project Overview
+- setup and run instructions, see the root [README.md](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/README.md)
+- architecture and concept explanations, see [how-it-works.md](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/how-it-works.md)
+- recorded testnet transaction history, see [transactions.md](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/transactions.md)
 
-This example project includes:
+## What Is In This Folder
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using `mocha` and ethers.js
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+- [contracts/MyOFT.sol](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/contracts/MyOFT.sol)
+  The omnichain fungible token contract used for bridge testing.
 
-## Usage
+- [deploy/MyOFT.ts](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/deploy/MyOFT.ts)
+  The deployment script for Sepolia and Arbitrum Sepolia.
 
-### Running Tests
+- [layerzero.config.ts](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/layerzero.config.ts)
+  The LayerZero pathway and peer wiring configuration.
 
-To run all the tests in the project, execute the following command:
+- [tasks/](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/tasks)
+  Custom Hardhat tasks for minting and cross-chain sending.
 
-```shell
+- [scripts/bridge-workflow.js](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/scripts/bridge-workflow.js)
+  A convenience automation wrapper for the most common workflow steps.
+
+## Main Commands
+
+Run these from the `contracts` directory.
+
+### Manual Hardhat Commands
+
+```powershell
+npx hardhat compile
 npx hardhat test
+npx hardhat lz:deploy --network sepolia --tags MyOFT
+npx hardhat lz:deploy --network arbitrumSepolia --tags MyOFT
+npx hardhat lz:oapp:wire --oapp-config layerzero.config.ts
+npx hardhat mint --network sepolia --to 0xYourAddress --amount 1000
+npx hardhat lz:oft:send --src-eid 40161 --dst-eid 40231 --amount 10 --to 0xYourAddress
 ```
 
-You can also selectively run the Solidity or `mocha` tests:
+### Package Scripts
 
-```shell
-npx hardhat test solidity
-npx hardhat test mocha
+```powershell
+npm run compile
+npm run test
+npm run deploy:sepolia
+npm run deploy:arbitrum
+npm run deploy:all
+npm run wire
+npm run peers
 ```
 
-### Make a deployment to Sepolia
+### Automation Helper
 
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
-
-To run the deployment to a local chain:
-
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
+```powershell
+npm run bridge:prepare
+npm run mint:sepolia
+npm run mint:arbitrum
+npm run send:s2a
+npm run send:a2s
 ```
 
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
+## Notes
 
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
-
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
-
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
-```
-
-After setting the variable, you can run the deployment with the Sepolia network:
-
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
-```
+- This workspace is configured for `Sepolia` and `Arbitrum Sepolia`.
+- The wallet and RPC values are read from `contracts/.env`.
+- `mint()` exists for testnet convenience and should not be treated as production token logic.

@@ -7,8 +7,16 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "deploy": "hardhat lz:deploy --tags MyOFT",
+    "deploy:sepolia": "hardhat lz:deploy --network sepolia --tags MyOFT",
+    "deploy:arbitrum": "hardhat lz:deploy --network arbitrumSepolia --tags MyOFT",
+    "deploy:all": "npm run deploy:sepolia && npm run deploy:arbitrum",
     "wire": "hardhat lz:oapp:wire --oapp-config layerzero.config.ts",
-    "peers": "hardhat lz:oapp:peers:get --oapp-config layerzero.config.ts"
+    "peers": "hardhat lz:oapp:peers:get --oapp-config layerzero.config.ts",
+    "bridge:prepare": "node scripts/bridge-workflow.js prepare",
+    "mint:sepolia": "node scripts/bridge-workflow.js mint sepolia",
+    "mint:arbitrum": "node scripts/bridge-workflow.js mint arbitrumSepolia",
+    "send:s2a": "node scripts/bridge-workflow.js send sepolia arbitrumSepolia",
+    "send:a2s": "node scripts/bridge-workflow.js send arbitrumSepolia sepolia"
   },
   "overrides": {
     "ethers": "^5.7.2",
