@@ -1,228 +1,337 @@
-# LayerZero Bridge Demo (OFT v2)
+# LayerZero Testnet Bridge Setup Guide
 
-This project demonstrates how to use the **LayerZero v2 Bridging SDK** with a simple **demo dapp**.  
-It includes:
+This repository is meant to help you set up and test a LayerZero bridge flow on testnets.
 
-- **Contracts (`contracts/`)** → Hardhat + TypeScript + Solidity project that deploys Omnichain Fungible Token (OFT v2) contracts.
-- **Frontend (`web/`)** → Next.js + wagmi + RainbowKit + LayerZero SDK demo app to send tokens across chains.
-- **Setup scripts and configs** to run everything with **pnpm** on Windows + VS Code.
+The goal is simple:
 
----
+1. Set up a wallet.
+2. Fund it with testnet ETH.
+3. Deploy bridge contracts.
+4. Wire the contracts together.
+5. Send test tokens from Sepolia to Arbitrum Sepolia and back.
 
-## 📦 Prerequisites
+## Read This First
 
-- Windows + [VS Code](https://code.visualstudio.com/)
-- [Node.js 18+](https://nodejs.org/)
-- [pnpm](https://pnpm.io/)
-  ```powershell
-  npm i -g pnpm
-  ```
+As of March 27, 2026, the checked-in `contracts/` workspace is still a sample Hardhat `Counter` project, not a finished OFT bridge implementation. That means:
 
-# LayerZero V2 OFT Bridging – Project README
+- this repo is not yet ready for a full end-to-end LayerZero bridge test as-is
+- the wallet, faucet, environment, and deployment steps below are the correct setup flow
+- the bridge-specific commands only make sense after the contracts workspace contains a real LayerZero OFT contract and related config
 
-This project demonstrates how to deploy, configure, and test a **LayerZero V2 Omnichain Fungible Token (OFT)** between **Ethereum Sepolia** and **Arbitrum Sepolia** using **Hardhat**.
+If you use this README as your guide, treat it as the clean setup checklist for getting ready to test the bridge properly.
 
-## 📁 Project Structure
+## What You Need
 
-```
+- MetaMask or another EVM wallet
+- Node.js 18+
+- npm
+- Sepolia ETH for gas
+- Arbitrum Sepolia ETH for gas
+- a wallet address you control
+- RPC URLs for Sepolia and Arbitrum Sepolia
+- a private key for the wallet you will deploy from
+
+## Your Wallet Address
+
+Anywhere you see `0xYourAddress`, replace it with your actual wallet address from MetaMask.
+
+To find it in MetaMask:
+
+1. Open MetaMask.
+2. Click your account name at the top.
+3. Copy the address shown there.
+
+That copied `0x...` value is your wallet address.
+
+## Networks You Should Have In MetaMask
+
+You need both of these testnets:
+
+- `Sepolia`
+- `Arbitrum Sepolia`
+
+Important:
+
+- Sepolia gas is paid in Sepolia ETH.
+- Arbitrum Sepolia gas is paid in Arbitrum Sepolia ETH.
+- You should keep some ETH on both networks.
+
+## If You Do Not Have Arbitrum Sepolia ETH Yet
+
+That is normal. You have a few options:
+
+1. Use an Arbitrum Sepolia faucet.
+2. Use a provider faucet that supports Arbitrum Sepolia.
+3. If needed, bridge test ETH from Sepolia to Arbitrum Sepolia using the official Arbitrum bridge.
+
+## Faucet Checklist
+
+Before you try to deploy or bridge anything, fund the same wallet address on both networks.
+
+### Sepolia ETH
+
+Try one of these:
+
+- Alchemy Sepolia faucet
+- Infura Sepolia faucet
+- QuickNode Sepolia faucet
+- Ethereum Ecosystem faucet
+
+### Arbitrum Sepolia ETH
+
+Try one of these:
+
+- Alchemy Arbitrum Sepolia faucet
+- QuickNode Arbitrum Sepolia faucet
+- Chainlink Arbitrum Sepolia faucet
+
+### Backup Option
+
+If faucets are rate-limited or unavailable, try the official Arbitrum bridge:
+
+- bridge Sepolia ETH to Arbitrum Sepolia
+
+## Before You Run Commands
+
+Make sure all of the following are true:
+
+- your wallet is set up in MetaMask
+- you copied your wallet address
+- your wallet has Sepolia ETH
+- your wallet has Arbitrum Sepolia ETH
+- you know which wallet private key you want to use for deployment
+
+## Project Structure
+
+```text
 testing-layerzero-bridge/
-├── contracts/     # Hardhat workspace for OFT + LayerZero tasks
-└── web/           # (optional) frontend UI (React/Vite)
+|-- contracts/   Hardhat workspace
+`-- web-app/     optional frontend folder
 ```
 
-# 🚀 1. Setup & Installation
+## Setup
 
-## Install dependencies (inside /contracts)
+Open a terminal in the repo root, then move into `contracts/`.
 
-### npm (recommended on Windows)
-
-```
-npm install
-npm install --save-dev @layerzerolabs/devtools-evm @layerzerolabs/toolbox-hardhat tsx typescript fp-ts
+```powershell
+cd contracts
 ```
 
-### pnpm
+## Install Dependencies
 
-```
-pnpm install
-pnpm add -D @layerzerolabs/devtools-evm @layerzerolabs/toolbox-hardhat tsx typescript fp-ts
+Because of the current dependency state in this repo, plain `npm install` may fail with peer dependency resolution errors.
+
+Use:
+
+```powershell
+npm install --legacy-peer-deps
 ```
 
-## Environment variables (.env)
+## Environment Variables
 
-```
+Create or update `contracts/.env` with your values:
+
+```env
 PRIVATE_KEY=0xYOUR_PRIVATE_KEY
-RPC_URL_SEPOLIA=https://...
-RPC_URL_ARBITRUM_SEPOLIA=https://...
+SEPOLIA_RPC=https://your-sepolia-rpc-url
+ARBITRUM_SEPOLIA_RPC=https://your-arbitrum-sepolia-rpc-url
 ```
 
-## hardhat.config.ts should include:
+You can also use these variable names if your config expects them:
 
-```ts
-import "@layerzerolabs/devtools-evm";
-import "@layerzerolabs/toolbox-hardhat";
-import "dotenv/config";
+```env
+RPC_URL_SEPOLIA=https://your-sepolia-rpc-url
+RPC_URL_ARBITRUM_SEPOLIA=https://your-arbitrum-sepolia-rpc-url
 ```
 
----
+Notes:
 
-# 🧱 2. Compile Contracts
+- use a test wallet, not your main wallet
+- never commit `.env`
+- the deploying wallet needs test ETH on both networks
 
-```
+## Hardhat Network Values
+
+These are the values you are working with:
+
+### Sepolia
+
+- Chain ID: `11155111`
+- LayerZero Endpoint ID: `40161`
+
+### Arbitrum Sepolia
+
+- Chain ID: `421614`
+- LayerZero Endpoint ID: `40231`
+
+## What A Successful Bridge Test Looks Like
+
+For a real LayerZero OFT bridge test, the normal flow is:
+
+1. Compile the contracts.
+2. Deploy the OFT to Sepolia.
+3. Deploy the OFT to Arbitrum Sepolia.
+4. Configure peer connections in `layerzero.config.ts`.
+5. Wire the contracts together.
+6. Mint test tokens.
+7. Send tokens from one chain to the other.
+8. Confirm the message and balances updated.
+
+## Compile
+
+Once the contracts workspace contains a real OFT implementation, compile with:
+
+```powershell
 npx hardhat compile
 ```
 
----
+## Deploy
 
-# 🌐 3. Deploy Contracts
+Deploy to Sepolia:
 
-## Sepolia
-
-```
+```powershell
 npx hardhat lz:deploy --network sepolia
 ```
 
-## Arbitrum Sepolia
+Deploy to Arbitrum Sepolia:
 
-```
+```powershell
 npx hardhat lz:deploy --network arbitrumSepolia
 ```
 
-Deployment results appear in:
+Deployment artifacts are usually written under a `deployments/` directory inside the contracts workspace.
 
-```
-contracts/deployments/<network>/
-```
+## Wire The Two Contracts Together
 
----
+After both contracts are deployed, define them in `layerzero.config.ts`.
 
-# 🔗 4. Wire OFT Contracts
-
-Edit `layerzero.config.ts`:
+Example shape:
 
 ```ts
 const sepolia = { contract: "MyOFT", eid: 40161 };
-const arbSep = { contract: "MyOFT", eid: 40231 };
+const arbSepolia = { contract: "MyOFT", eid: 40231 };
 
 export default {
-  contracts: [sepolia, arbSep],
+  contracts: [sepolia, arbSepolia],
   connections: [
-    { from: sepolia, to: arbSep },
-    { from: arbSep, to: sepolia },
+    { from: sepolia, to: arbSepolia },
+    { from: arbSepolia, to: sepolia },
   ],
 };
 ```
 
-## Wire peers
+Then wire peers:
 
-```
+```powershell
 npx hardhat lz:oapp:wire --oapp-config layerzero.config.ts
 ```
 
-## Verify peers
+If supported by your project setup, verify peers:
 
-```
+```powershell
 npx hardhat lz:oapp:peers:get --oapp-config layerzero.config.ts
 ```
 
----
+## Mint Test Tokens
 
-# 🪙 5. Mint Test Tokens
+If your OFT project includes a mint task, mint to your own wallet address:
 
-If your scaffold includes a mint task:
-
-```
+```powershell
 npx hardhat mint --network sepolia --to 0xYourAddress --amount 1000
 ```
 
----
+Replace `0xYourAddress` with the address you copied from MetaMask.
 
-# 🔁 6. Bridge Tokens
+## Send Tokens Across The Bridge
 
-## Sepolia → Arbitrum Sepolia
+### Sepolia to Arbitrum Sepolia
 
-```
+```powershell
 npx hardhat lz:oft:send --src-eid 40161 --dst-eid 40231 --amount 10 --to 0xYourAddress
 ```
 
-## Arbitrum Sepolia → Sepolia
+### Arbitrum Sepolia to Sepolia
 
-```
+```powershell
 npx hardhat lz:oft:send --src-eid 40231 --dst-eid 40161 --amount 10 --to 0xYourAddress
 ```
 
-The CLI will quote fees, send transactions, and provide a message ID.
+Use your own wallet address for `--to` if you want to bridge to yourself.
 
----
+## How To Verify The Bridge Worked
 
-# 📡 7. Verify Bridging
+Check all three of these:
 
-## LayerZero Scan
+1. The transaction succeeded on the source chain.
+2. The LayerZero message appears in LayerZero Scan.
+3. The token balance changes on the destination chain.
 
-Track your message:
+Helpful explorers:
 
-```
-https://layerzeroscan.com
-```
+- Sepolia Etherscan
+- Arbitrum Sepolia explorer
+- LayerZero Scan
 
-## Check your balances
+## Quick Wallet Reality Check
 
-- Sepolia: https://sepolia.etherscan.io
-- Arbitrum Sepolia: https://sepolia.arbiscan.io
+Before testing the bridge, confirm:
 
----
+- MetaMask is connected to the correct network
+- you copied the right wallet address
+- you have gas on Sepolia
+- you have gas on Arbitrum Sepolia
+- your `.env` private key belongs to the same wallet you expect to use
 
-# 🌐 8. MetaMask Networks
+## Common Problems
 
-## Sepolia
+### I only have Sepolia ETH
 
-- Chain ID: **11155111**
-- RPC: https://rpc.sepolia.org
+You still need Arbitrum Sepolia ETH for destination-chain actions. Use an Arbitrum Sepolia faucet or the Arbitrum bridge.
 
-## Arbitrum Sepolia
+### My command says `0xYourAddress`
 
-- Chain ID: **421614**
-- RPC: https://sepolia-rollup.arbitrum.io/rpc
+That is just a placeholder. Replace it with your actual wallet address.
 
-## Test ETH Faucets
+### `npm install` fails
 
-- Sepolia: https://sepoliafaucet.com
-- Arbitrum Sepolia: https://faucet.quicknode.com/arbitrum/sepolia
-- Or bridge Sepolia → Arbitrum Sepolia at https://bridge.arbitrum.io
+Use:
 
----
-
-# 🧪 9. Quick Command Reference
-
-### Compile
-
-```
-npx hardhat compile
+```powershell
+npm install --legacy-peer-deps
 ```
 
-### Deploy
+### `npx hardhat compile` or `npx hardhat test` fails immediately
 
-```
-npx hardhat lz:deploy --network sepolia
-npx hardhat lz:deploy --network arbitrumSepolia
-```
+That is currently expected in this repo until the LayerZero bridge contracts and dependency issues are fully fixed.
 
-### Wire
+## Recommended Order For A First Successful Test
 
-```
-npx hardhat lz:oapp:wire --oapp-config layerzero.config.ts
-npx hardhat lz:oapp:peers:get --oapp-config layerzero.config.ts
-```
+1. Set up MetaMask.
+2. Add Sepolia and Arbitrum Sepolia.
+3. Copy your wallet address.
+4. Get Sepolia ETH.
+5. Get Arbitrum Sepolia ETH.
+6. Fill in `contracts/.env`.
+7. Install dependencies in `contracts/`.
+8. Make sure the contracts workspace contains a real LayerZero OFT project.
+9. Compile.
+10. Deploy to both networks.
+11. Wire the peers.
+12. Mint test tokens.
+13. Send tokens across the bridge.
+14. Verify the message and balances.
 
-### Mint
+## Useful Links
 
-```
-npx hardhat mint --network sepolia --to 0xYourAddr --amount 1000
-```
+- MetaMask network setup: https://support.metamask.io/configure/networks/how-to-add-a-custom-network-rpc/
+- Ethereum testnet overview and faucet list: https://ethereum.org/developers/docs/networks/
+- LayerZero OFT quickstart: https://docs.layerzero.network/v2/developers/evm/oft/quickstart
+- LayerZero network setup guide: https://docs.layerzero.network/v2/get-started/create-lz-oapp/adding-networks
+- Arbitrum bridge: https://bridge.arbitrum.io/
+- LayerZero Scan: https://layerzeroscan.com/
 
-### Bridge
+## Current Repo Status
 
-```
-npx hardhat lz:oft:send --src-eid 40161 --dst-eid 40231 --amount 10 --to 0xYourAddr
-npx hardhat lz:oft:send --src-eid 40231 --dst-eid 40161 --amount 10 --to 0xYourAddr
-```
+Right now this repo still needs actual bridge contracts before the full test flow can succeed.
+
+The wallet and funding steps in this README are still the correct first steps, and they are the exact steps you should finish before attempting deployment.
