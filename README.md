@@ -239,11 +239,11 @@ Helpful links:
 10. Send a small amount, like `1` or `10`, to your own wallet on Arbitrum Sepolia.
 11. Confirm the message on LayerZero Scan.
 
-## Optional Automation With `bridge-workflow.js`
+## Optional Automation With `bridge-workflow.ts`
 
 If you do not want to type every Hardhat command manually each time, this repo also includes:
 
-- [bridge-workflow.js](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/scripts/bridge-workflow.js)
+- [bridge-workflow.ts](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/scripts/bridge-workflow.ts)
 
 This script is not a replacement for the manual instructions above. It is just a convenience layer that runs the same workflow for you in a shorter form.
 

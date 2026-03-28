@@ -22,7 +22,7 @@ If you are looking for:
 - [tasks/](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/tasks)
   Custom Hardhat tasks for minting and cross-chain sending.
 
-- [scripts/bridge-workflow.js](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/scripts/bridge-workflow.js)
+- [scripts/bridge-workflow.ts](/c:/Users/callo/Desktop/Remora/Projects_Repos/Project-3/bridge-test-project/layerzero-sdk-test/testing-layerzero-bridge/contracts/scripts/bridge-workflow.ts)
   A convenience automation wrapper for the most common workflow steps.
 
 ## Main Commands
